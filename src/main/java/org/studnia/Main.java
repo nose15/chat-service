@@ -13,7 +13,6 @@ public class Main {
         server.start();
 
         try {
-            server.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             System.out.print("Please press a key to stop the server.");
             reader.readLine();

@@ -1,7 +1,8 @@
 package org.studnia.endpoints;
 
-import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.websocket.*;
+import jakarta.websocket.server.ServerEndpoint;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;

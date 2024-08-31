@@ -1,23 +1,26 @@
 package org.studnia.endpoints;
+import org.json.*;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
+import org.studnia.messages.DTOs.MessageDTO;
+import org.studnia.requests.MessageRequest;
+import org.studnia.users.services.UserService;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-@ServerEndpoint(value = "/chat")
+@ServerEndpoint(value = "/chat", configurator = CustomEndpointConfigurator.class)
 public class SocketHandler {
     private Session session;
-    private static final Set<SocketHandler> connections = new HashSet<SocketHandler>();
+    private static final HashMap<String, SocketHandler> connections = new HashMap<String, SocketHandler>();
 
     @OnOpen
     public void onOpen(Session session) {
         this.session = session;
-
-        System.out.println("Connection opened");
-        connections.add(this);
+        String userId = (String) session.getUserProperties().get("user_id");
+        connections.put(userId, this);
     }
 
     @OnClose
@@ -33,7 +36,20 @@ public class SocketHandler {
     }
 
     @OnMessage
-    public void onMessage(String message, Session session) {
-        System.out.println(message);
+    public void onMessage(String message, Session session) throws IOException {
+        MessageRequest request = new MessageRequest(message);
+        MessageDTO messageDTO = request.toDTO();
+        UserService userService = new UserService();
+        ArrayList<String> users = userService.getUsersInChatRoom(messageDTO.chatRoomId);
+        broadcast(users, this.session, messageDTO.message);
+    }
+
+    public void broadcast(ArrayList<String> users, Session senderSession, String message) throws IOException {
+        for (String userId : users) {
+            Session userSession = connections.get(userId).session;
+            if (userSession.isOpen() && !userSession.equals(senderSession)) {
+                session.getBasicRemote().sendText(message);
+            }
+        }
     }
 }

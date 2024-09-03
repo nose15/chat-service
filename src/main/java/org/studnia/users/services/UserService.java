@@ -6,6 +6,6 @@ import java.util.List;
 
 public class UserService {
     public ArrayList<String> getUsersInChatRoom(String chatRoomId) {
-        return new ArrayList<String>(List.of("A1", "A2"));
+        return new ArrayList<String>(List.of("1", "2"));
     }
 }

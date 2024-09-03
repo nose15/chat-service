@@ -12,10 +12,19 @@ public class CustomEndpointConfigurator extends ServerEndpointConfig.Configurato
     public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response) {
         super.modifyHandshake(config, request, response);
         Map<String, List<String>> headers = request.getHeaders();
-        System.out.println(headers);
-        String userId = headers.get("user_id").get(0);
+        Map<String, List<String>> params = request.getParameterMap();
 
+        String authToken = null;
+        String userId = null;
+        if  (headers.containsKey("Authorization")) {
+            authToken = headers.get("Authorization").get(0);
+        }
+
+        if  (params.containsKey("user_id")) {
+            userId = params.get("user_id").get(0);
+        }
+
+        config.getUserProperties().put("token", authToken);
         config.getUserProperties().put("user_id", userId);
-        config.getUserProperties();
     }
 }
